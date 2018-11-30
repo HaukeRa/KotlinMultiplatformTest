@@ -1,0 +1,2 @@
+include ':shared'
+enableFeaturePreview('GRADLE_METADATA')

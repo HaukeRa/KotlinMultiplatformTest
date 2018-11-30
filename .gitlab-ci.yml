@@ -1,0 +1,40 @@
+#image: openjdk:8-jdk
+
+before_script:
+#  - apt-get update && apt-get install -y -q curl git unzip openssl
+#  - apt-get -y autoclean && rm -rf /var/lib/apt/lists/*
+#  - curl -so sdk-tools-darwin.zip https://dl.google.com/android/repository/sdk-tools-darwin-4333796.zip && unzip sdk-tools-darwin.zip -d ~/androidsdk
+  - export ANDROID_HOME=~/androidsdk
+  - export PATH="$ANDROID_HOME/tools/bin:$PATH"
+  - echo $PATH
+  - echo y | sdkmanager "build-tools;26.0.2"
+  - echo y | sdkmanager "extras;android;m2repository"
+  - echo y | sdkmanager "platform-tools"
+  - echo y | sdkmanager "platforms;android-26"
+  - yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses || true
+  - chmod +x ./gradlew
+#  - rm -rf $HOME/.gradle/caches/
+
+
+stages:
+  - build
+#  - test
+  
+checkBuild: #build master
+  stage: build
+  script:
+    - 'chmod +x ./gradlew'
+    - 'java -version'
+    - 'xcode-select --print-path'
+    - './gradlew clean build --stacktrace'
+  artifacts:
+    paths:
+      - shared/build/libs/*
+      - shared/build/bin/*
+    name: "Multiplatform_$CI_BUILD_REF_NAME"
+    expire_in: 1 week
+  only:
+    - master
+  tags:
+    - alpha
+  
