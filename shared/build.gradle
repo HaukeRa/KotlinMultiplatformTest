@@ -7,11 +7,25 @@ buildscript {
     }
 }
 plugins {
+    id 'com.android.library'
     id 'org.jetbrains.kotlin.multiplatform'
 }
 apply plugin: 'kotlinx-serialization'
+apply plugin: 'maven-publish'
 
 repositories {
+}
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
 }
 
 kotlin {
@@ -23,7 +37,11 @@ kotlin {
             compilations.main.outputKinds('FRAMEWORK')
         }
 
-        fromPreset(presets.jvm, 'android') {
+        fromPreset(presets.jvm, 'jvm') {
+        }
+
+        fromPreset(presets.android,'android'){
+
         }
     }
 
@@ -36,6 +54,21 @@ kotlin {
         commonTest.dependencies {
             implementation "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
             implementation "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
+        }
+
+        jvmMain{
+            dependencies{
+                api 'org.jetbrains.kotlin:kotlin-stdlib'
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+                api "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.9.1"
+            }
+        }
+
+        jvmTest{
+            dependencies{
+                implementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+                implementation "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
+            }
         }
 
         androidMain {
@@ -73,23 +106,3 @@ kotlin {
 configurations {
     compileClasspath
 }
-
-//task packForXCode(type: Sync) {
-//    final File frameworkDir = new File(buildDir, "xcode-frameworks")
-//    final String mode = project.findProperty("XCODE_CONFIGURATION")?.toUpperCase() ?: 'DEBUG'
-//
-//    inputs.property "mode", mode
-//    dependsOn kotlin.targets.iOS.compilations.main.linkTaskName("FRAMEWORK", mode)
-//
-//    from { kotlin.targets.iOS.compilations.main.getBinary("FRAMEWORK", mode).parentFile }
-//    into frameworkDir
-//
-//    doLast {
-//        new File(frameworkDir, 'gradlew').with {
-//            text = "#!/bin/bash\nexport 'JAVA_HOME=${System.getProperty("java.home")}'\ncd '${rootProject.rootDir}'\n./gradlew \$@\n"
-//            setExecutable(true)
-//        }
-//    }
-//}
-//
-//tasks.build.dependsOn packForXCode

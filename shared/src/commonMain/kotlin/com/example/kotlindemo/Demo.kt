@@ -5,7 +5,7 @@ import kotlinx.coroutines.delay
 
 
 expect fun expectFunctionWithSuspendFunctionParameter(cb: (suspend (Any) -> Unit)): SendChannel<Any>
-private val act: SendChannel<Any> = expectFunctionWithSuspendFunctionParameter(::receiveEvent)
+private val act: SendChannel<Any> = expectFunctionWithSuspendFunctionParameter({(::receiveEvent)(it)})
 
 suspend fun receiveEvent(event: Any) {
     delay(1)
